@@ -15,19 +15,19 @@ Requires Zod v4.
 ## Quick Start
 
 ```js
-import { createSchemas } from '@api-platform/zod'
-import { safeParse } from 'zod/v4'
+import { createSchemas } from "@api-platform/zod";
+import { safeParse } from "zod/v4";
 
 // Generate schemas from an API entrypoint
-const { schemas, collections } = await createSchemas('https://api.example.com')
+const { schemas, collections } = await createSchemas("https://api.example.com");
 
 // schemas.Book -> z.looseObject({ '@id': z.string(), '@type': z.literal('Book'), title: z.string(), ... })
 // collections.Book -> Hydra collection schema wrapping Book
 
 // Validate API responses
-const result = safeParse(schemas.Book, responseData)
+const result = safeParse(schemas.Book, responseData);
 if (result.success) {
-  console.log(result.data.title)
+  console.log(result.data.title);
 }
 ```
 
@@ -38,14 +38,18 @@ if (result.success) {
 High-level function that fetches and parses API documentation, then generates Zod schemas.
 
 ```js
-const { schemas, collections, resources, api, response } = await createSchemas('https://api.example.com')
+const { schemas, collections, resources, api, response } = await createSchemas(
+  "https://api.example.com",
+);
 ```
 
 **Parameters:**
+
 - `entrypoint` — The API entrypoint URL
 - `options` — Options passed to `parseHydraDocumentation`
 
 **Returns:**
+
 - `schemas` — `{ [ResourceName]: ZodSchema }` for each resource
 - `collections` — `{ [ResourceName]: ZodSchema }` Hydra collection schemas
 - `resources` — The parsed resource objects from api-doc-parser
@@ -57,9 +61,9 @@ const { schemas, collections, resources, api, response } = await createSchemas('
 Lower-level function that works with pre-parsed Resource objects (from api-doc-parser). Useful when you already have the parsed API documentation.
 
 ```js
-import { schemasFromResources } from '@api-platform/zod'
+import { schemasFromResources } from "@api-platform/zod";
 
-const { schemas, collections } = schemasFromResources(api.resources)
+const { schemas, collections } = schemasFromResources(api.resources);
 ```
 
 ### `resourceToSchema(resource, schemaMap?)`
@@ -67,9 +71,9 @@ const { schemas, collections } = schemasFromResources(api.resources)
 Converts a single api-doc-parser Resource into a `z.looseObject` schema with `@id`, `@type`, and all readable fields.
 
 ```js
-import { resourceToSchema } from '@api-platform/zod'
+import { resourceToSchema } from "@api-platform/zod";
 
-const bookSchema = resourceToSchema(bookResource)
+const bookSchema = resourceToSchema(bookResource);
 ```
 
 ### `fieldToZod(field, schemaMap?)`
@@ -77,9 +81,9 @@ const bookSchema = resourceToSchema(bookResource)
 Converts a single api-doc-parser Field into a Zod type.
 
 ```js
-import { fieldToZod } from '@api-platform/zod'
+import { fieldToZod } from "@api-platform/zod";
 
-const zodType = fieldToZod(field)
+const zodType = fieldToZod(field);
 ```
 
 ### `collectionSchema(itemSchema)`
@@ -87,29 +91,29 @@ const zodType = fieldToZod(field)
 Creates a Hydra collection schema wrapping the given item schema.
 
 ```js
-import { collectionSchema } from '@api-platform/zod'
+import { collectionSchema } from "@api-platform/zod";
 
-const booksCollectionSchema = collectionSchema(bookSchema)
+const booksCollectionSchema = collectionSchema(bookSchema);
 ```
 
 ## Type Mapping
 
-| Field Type | Zod Type |
-|---|---|
-| `string`, `password`, `byte`, `binary`, `hexBinary`, `base64Binary`, `duration` | `z.string()` |
-| `email` | `z.string().email()` |
-| `url` | `z.string().url()` |
-| `uuid` | `z.string().uuid()` |
-| `integer` | `z.int()` |
-| `positiveInteger` | `z.int().min(1)` |
-| `negativeInteger` | `z.int().max(-1)` |
-| `nonNegativeInteger` | `z.int().min(0)` |
-| `nonPositiveInteger` | `z.int().max(0)` |
-| `number`, `decimal`, `double`, `float` | `z.number()` |
-| `boolean` | `z.boolean()` |
-| `date` | `z.string().date()` |
-| `dateTime` | `z.string().datetime()` |
-| `time` | `z.string().time()` |
+| Field Type                                                                      | Zod Type                |
+| ------------------------------------------------------------------------------- | ----------------------- |
+| `string`, `password`, `byte`, `binary`, `hexBinary`, `base64Binary`, `duration` | `z.string()`            |
+| `email`                                                                         | `z.string().email()`    |
+| `url`                                                                           | `z.string().url()`      |
+| `uuid`                                                                          | `z.string().uuid()`     |
+| `integer`                                                                       | `z.int()`               |
+| `positiveInteger`                                                               | `z.int().min(1)`        |
+| `negativeInteger`                                                               | `z.int().max(-1)`       |
+| `nonNegativeInteger`                                                            | `z.int().min(0)`        |
+| `nonPositiveInteger`                                                            | `z.int().max(0)`        |
+| `number`, `decimal`, `double`, `float`                                          | `z.number()`            |
+| `boolean`                                                                       | `z.boolean()`           |
+| `date`                                                                          | `z.string().date()`     |
+| `dateTime`                                                                      | `z.string().datetime()` |
+| `time`                                                                          | `z.string().time()`     |
 
 ### Special Cases
 
@@ -127,11 +131,11 @@ Schemas use `z.looseObject()`, which allows unknown properties to pass through w
 ```js
 // Extra fields in the response are preserved, not stripped
 const result = safeParse(schemas.Book, {
-  '@id': '/api/books/1',
-  '@type': 'Book',
-  title: 'The Great Gatsby',
-  newFieldAddedLater: 'still available',
-})
+  "@id": "/api/books/1",
+  "@type": "Book",
+  title: "The Great Gatsby",
+  newFieldAddedLater: "still available",
+});
 // result.data.newFieldAddedLater === 'still available'
 ```
 

@@ -8,7 +8,9 @@
     ".": "./src/index.js"
   },
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
   },
   "peerDependencies": {
     "zod": "^4.0.0"
@@ -17,8 +19,9 @@
     "@api-platform/api-doc-parser": "^0.16.9"
   },
   "devDependencies": {
-    "zod": "^4.0.0",
+    "@jest/globals": "^30.0.0",
     "jest": "^30.0.0",
-    "@jest/globals": "^30.0.0"
+    "prettier": "^3.8.1",
+    "zod": "^4.0.0"
   }
 }

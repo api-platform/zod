@@ -22,7 +22,7 @@ export function collectionSchema(itemSchema) {
         last: z.optional(z.string()),
         previous: z.optional(z.string()),
         next: z.optional(z.string()),
-      })
+      }),
     ),
     search: z.optional(
       z.looseObject({
@@ -36,10 +36,10 @@ export function collectionSchema(itemSchema) {
               variable: z.string(),
               property: z.optional(z.nullable(z.string())),
               required: z.optional(z.boolean()),
-            })
-          )
+            }),
+          ),
         ),
-      })
+      }),
     ),
   });
 }

@@ -54,7 +54,7 @@ describe("fieldToZod", () => {
   it("maps uuid to z.string().uuid()", () => {
     const schema = fieldToZod(makeField({ type: "uuid" }));
     expect(
-      z.safeParse(schema, "550e8400-e29b-41d4-a716-446655440000").success
+      z.safeParse(schema, "550e8400-e29b-41d4-a716-446655440000").success,
     ).toBe(true);
     expect(z.safeParse(schema, "not-a-uuid").success).toBe(false);
   });
@@ -129,7 +129,7 @@ describe("fieldToZod", () => {
 
   it("handles reference fields as z.string()", () => {
     const schema = fieldToZod(
-      makeField({ reference: { name: "Author", title: "Author" } })
+      makeField({ reference: { name: "Author", title: "Author" } }),
     );
     expect(z.safeParse(schema, "/api/authors/1").success).toBe(true);
     expect(z.safeParse(schema, 123).success).toBe(false);
@@ -144,17 +144,17 @@ describe("fieldToZod", () => {
 
     const schema = fieldToZod(
       makeField({ embedded: { name: "Author", title: "Author" } }),
-      schemaMap
+      schemaMap,
     );
 
     expect(
-      z.safeParse(schema, { "@id": "/api/authors/1", name: "Jane" }).success
+      z.safeParse(schema, { "@id": "/api/authors/1", name: "Jane" }).success,
     ).toBe(true);
   });
 
   it("handles enum fields", () => {
     const schema = fieldToZod(
-      makeField({ enum: ["draft", "published", "archived"] })
+      makeField({ enum: ["draft", "published", "archived"] }),
     );
     expect(z.safeParse(schema, "draft").success).toBe(true);
     expect(z.safeParse(schema, "published").success).toBe(true);
@@ -169,16 +169,14 @@ describe("fieldToZod", () => {
   });
 
   it("handles optional fields (required === false)", () => {
-    const schema = fieldToZod(
-      makeField({ type: "string", required: false })
-    );
+    const schema = fieldToZod(makeField({ type: "string", required: false }));
     expect(z.safeParse(schema, "hello").success).toBe(true);
     expect(z.safeParse(schema, undefined).success).toBe(true);
   });
 
   it("handles array fields (maxCardinality !== 1)", () => {
     const schema = fieldToZod(
-      makeField({ type: "string", maxCardinality: null })
+      makeField({ type: "string", maxCardinality: null }),
     );
     expect(z.safeParse(schema, ["a", "b"]).success).toBe(true);
     expect(z.safeParse(schema, "a").success).toBe(false);
@@ -425,9 +423,7 @@ describe("schemasFromResources", () => {
 
   it("builds collection schemas that validate", () => {
     const resources = [
-      makeResource("Book", [
-        makeField({ name: "title", type: "string" }),
-      ]),
+      makeResource("Book", [makeField({ name: "title", type: "string" })]),
     ];
 
     const { collections } = schemasFromResources(resources);
@@ -436,9 +432,7 @@ describe("schemasFromResources", () => {
       "@id": "/api/books",
       "@type": "Collection",
       totalItems: 1,
-      member: [
-        { "@id": "/api/books/1", "@type": "Book", title: "Test" },
-      ],
+      member: [{ "@id": "/api/books/1", "@type": "Book", title: "Test" }],
     });
 
     expect(result.success).toBe(true);
