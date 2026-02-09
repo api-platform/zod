@@ -1,6 +1,6 @@
 {
   "name": "@api-platform/zod",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generate Zod schemas from JSON-LD / Hydra API documentation",
   "license": "MIT",
   "type": "module",
