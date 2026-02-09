@@ -1,0 +1,24 @@
+{
+  "name": "@api-platform/zod",
+  "version": "0.1.0",
+  "description": "Generate Zod schemas from JSON-LD / Hydra API documentation",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
+  "dependencies": {
+    "@api-platform/api-doc-parser": "^0.16.9"
+  },
+  "devDependencies": {
+    "zod": "^4.0.0",
+    "jest": "^30.0.0",
+    "@jest/globals": "^30.0.0"
+  }
+}
