@@ -437,4 +437,81 @@ describe("schemasFromResources", () => {
 
     expect(result.success).toBe(true);
   });
+
+  it("preserves both resources when they share the same title but different names", () => {
+    const booksResource = {
+      name: "books",
+      title: "Book",
+      fields: [makeField({ name: "title", type: "string" })],
+      readableFields: [makeField({ name: "title", type: "string" })],
+    };
+    const adminBooksResource = {
+      name: "admin/books",
+      title: "Book",
+      fields: [
+        makeField({ name: "title", type: "string" }),
+        makeField({ name: "secret", type: "string" }),
+      ],
+      readableFields: [
+        makeField({ name: "title", type: "string" }),
+        makeField({ name: "secret", type: "string" }),
+      ],
+    };
+
+    const { schemas, collections } = schemasFromResources([
+      booksResource,
+      adminBooksResource,
+    ]);
+
+    // Both should exist under their unique name
+    expect(schemas["books"]).toBeDefined();
+    expect(schemas["admin/books"]).toBeDefined();
+    expect(collections["books"]).toBeDefined();
+    expect(collections["admin/books"]).toBeDefined();
+
+    // The books schema should NOT have the "secret" field
+    const booksResult = z.safeParse(schemas["books"], {
+      "@id": "/books/1",
+      "@type": "Book",
+      title: "Test",
+    });
+    expect(booksResult.success).toBe(true);
+
+    // The admin/books schema should have the "secret" field
+    const adminResult = z.safeParse(schemas["admin/books"], {
+      "@id": "/admin/books/1",
+      "@type": "Book",
+      title: "Test",
+      secret: "s3cret",
+    });
+    expect(adminResult.success).toBe(true);
+  });
+
+  it("collection schemas validate hydra-prefixed responses", () => {
+    const resources = [
+      makeResource("Book", [makeField({ name: "title", type: "string" })]),
+    ];
+
+    const { collections } = schemasFromResources(resources);
+
+    const result = z.safeParse(collections.Book, {
+      "@id": "/api/books",
+      "@type": "hydra:Collection",
+      "hydra:totalItems": 2,
+      "hydra:member": [
+        { "@id": "/api/books/1", "@type": "Book", title: "Book One" },
+        { "@id": "/api/books/2", "@type": "Book", title: "Book Two" },
+      ],
+      "hydra:view": {
+        "@id": "/api/books?page=1",
+        "@type": "hydra:PartialCollectionView",
+        "hydra:first": "/api/books?page=1",
+        "hydra:last": "/api/books?page=5",
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data.totalItems).toBe(2);
+    expect(result.data.member).toHaveLength(2);
+  });
 });

@@ -1,3 +1,4 @@
+import { z } from "zod/v4";
 import { parseHydraDocumentation } from "@api-platform/api-doc-parser";
 import { resourceToSchema } from "./resource.js";
 import { collectionSchema } from "./collection.js";
@@ -5,6 +6,25 @@ import { collectionSchema } from "./collection.js";
 export { fieldToZod } from "./field.js";
 export { resourceToSchema } from "./resource.js";
 export { collectionSchema } from "./collection.js";
+
+/**
+ * Recursively strip the `hydra:` prefix from object keys.
+ *
+ * @param {unknown} data
+ * @returns {unknown}
+ */
+export function stripHydraPrefix(data) {
+  if (Array.isArray(data)) return data.map(stripHydraPrefix);
+  if (data !== null && typeof data === "object") {
+    const out = {};
+    for (const [key, value] of Object.entries(data)) {
+      const stripped = key.startsWith("hydra:") ? key.slice(6) : key;
+      out[stripped] = stripHydraPrefix(value);
+    }
+    return out;
+  }
+  return data;
+}
 
 /**
  * Build Zod schemas from an array of api-doc-parser Resource objects.
@@ -21,24 +41,29 @@ export function schemasFromResources(resources) {
   const schemas = {};
   const collections = {};
 
-  // Pass 1: register placeholders for lazy resolution
+  // Pass 1: register placeholders for lazy resolution (keyed by title for z.lazy() lookups)
   for (const resource of resources) {
-    const name = resource.title || resource.name;
-    schemaMap[name] = null;
+    const title = resource.title || resource.name;
+    schemaMap[title] = null;
   }
 
   // Pass 2: build actual schemas
   for (const resource of resources) {
-    const name = resource.title || resource.name;
+    const title = resource.title || resource.name;
+    const name = resource.name || title;
     const schema = resourceToSchema(resource, schemaMap);
-    schemaMap[name] = schema;
+    schemaMap[title] = schema;
     schemas[name] = schema;
   }
 
   // Build collection schemas
   for (const resource of resources) {
-    const name = resource.title || resource.name;
-    collections[name] = collectionSchema(schemas[name]);
+    const title = resource.title || resource.name;
+    const name = resource.name || title;
+    collections[name] = z.preprocess(
+      stripHydraPrefix,
+      collectionSchema(schemas[name]),
+    );
   }
 
   return { schemas, collections };

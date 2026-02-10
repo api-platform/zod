@@ -1,4 +1,4 @@
-import * as z from "zod/v4";
+import { z } from "zod/v4";
 
 /**
  * Create a Hydra collection schema wrapping the given item schema.
